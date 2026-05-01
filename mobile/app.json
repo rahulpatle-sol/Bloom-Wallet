@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Vaultis",
+    "slug": "vaultis",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "vaultis",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A1A"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Vaultis uses Face ID to protect your wallet"
+        }
+      ]
+    ],
+    "android": {
+      "package": "com.vaultis.wallet",
+      "permissions": ["USE_BIOMETRIC", "USE_FINGERPRINT"]
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.vaultis.wallet"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
