@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Vaultis Wallet",
+  "version": "1.0.0",
+  "description": "Biometric Solana wallet with Digital Will — no seed phrase",
+  "permissions": ["storage", "activeTab"],
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_icon": {
+      "16": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/index.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}
