@@ -64,3 +64,8 @@ Desktop.ini
 .idea/
 *.swp
 *.swo
+/*.sublime-workspace
+/*.sublime-project
+/*.AndroidStudio*
+*.iml
+*/.Android

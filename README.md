@@ -1,6 +1,8 @@
-# 🔐 VAULTIS
+# 🌸 BLOOM WALLET
 
-> Biometric Solana wallet + Digital Will — no seed phrase, fully decentralized
+> Biometric Solana wallet with Living Will — no seed phrase, fully decentralized
+
+> *"Plant today. Harvest tomorrow. Let it bloom."*
 
 Built for **Colosseum Solana Frontier Hackathon**
 
@@ -11,8 +13,9 @@ Built for **Colosseum Solana Frontier Hackathon**
 ```
 vaultis/
 ├── programs/vaultis/     ← Steel on-chain program (Rust)
-├── mobile/               ← React Native Expo app
-├── extension/            ← Chrome Extension (MV3)
+├── mobile/                ← React Native Expo app
+├── extension/             ← Chrome Extension (MV3)
+├── bloom-wallet/         ← Marketing landing page (React + Vite)
 └── README.md
 ```
 
@@ -61,13 +64,10 @@ solana airdrop 2
 # Deploy
 solana program deploy target/deploy/vaultis.so
 
-# ⚠️ COPY the program ID printed after deploy!
-# Example: "Program Id: AbcXyz1234..."
+# COPY the program ID printed after deploy!
 ```
 
 ### Update Program ID in code:
-
-After deploy, update these files with your program ID:
 
 **mobile/constants/network.ts**
 ```ts
@@ -84,7 +84,24 @@ export const PROGRAM_ID_DEVNET = 'YOUR_PROGRAM_ID_HERE';
 
 ---
 
-## 📱 Part 2 — Mobile App
+## 🌸 Part 2 — Bloom Landing Page
+
+```bash
+cd bloom-wallet
+
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+---
+
+## 📱 Part 3 — Mobile App
 
 ```bash
 cd mobile
@@ -111,7 +128,7 @@ npx expo start --ios
 
 ---
 
-## 🌐 Part 3 — Chrome Extension
+## 🌐 Part 4 — Chrome Extension
 
 ```bash
 cd extension
@@ -128,11 +145,11 @@ npm run build
 # 2. Enable "Developer mode" (top right toggle)
 # 3. Click "Load unpacked"
 # 4. Select the extension/dist/ folder
-# 5. Vaultis icon appears in toolbar ✅
+# 5. Bloom icon appears in toolbar
 ```
 
 ### Extension First Run:
-1. Click Vaultis icon in Chrome
+1. Click Bloom icon in Chrome
 2. Enable biometric (Touch ID / Windows Hello)
 3. Save Share 2 backup
 4. Airdrop devnet SOL
@@ -148,26 +165,17 @@ npm run build
 
 ### Test will execution (simulated):
 ```bash
-# On Solana CLI, call execute_will after setting 1-day inactivity
-# Wait 1 day OR modify check for testing to 1 minute
 solana program invoke <PROGRAM_ID> \
-  --instruction-data 02 \  # 0x02 = ExecuteWill
+  --instruction-data 02 \
   --account <WILL_PDA> \
   --account <BENEFICIARY>
 ```
 
 ### Useful devnet commands:
 ```bash
-# Check balance
 solana balance
-
-# Get more devnet SOL
 solana airdrop 2
-
-# Watch program logs
 solana logs <PROGRAM_ID>
-
-# Check account data
 solana account <WILL_PDA_ADDRESS>
 ```
 
@@ -184,7 +192,7 @@ solana account <WILL_PDA_ADDRESS>
 
 ---
 
-## 🗺️ Roadmap (Post-Hackathon)
+## 🗺️ Roadmap
 
 - [ ] On-chain encrypted Share 3 storage (PDA)
 - [ ] SPL token transfers in will (not just SOL)
@@ -200,23 +208,24 @@ solana account <WILL_PDA_ADDRESS>
 | Layer | Tech |
 |---|---|
 | On-chain | Steel 3.0 (Rust) |
-| Mobile | React Native + Expo SDK 52 |
+| Mobile | React Native + Expo SDK 54 |
 | Biometric (mobile) | expo-local-authentication |
 | Key storage | expo-secure-store |
 | Extension | React + Vite + Chrome MV3 |
 | Biometric (web) | WebAuthn API |
 | Key splitting | shamirs-secret-sharing |
 | Solana client | @solana/web3.js |
+| Landing page | React + Vite |
 | Network | Devnet (Helius for mainnet) |
 
 ---
 
 ## 🏆 Colosseum Frontier Submission
 
-**Track:** Consumer + Infrastructure  
-**Tagline:** "The last wallet you'll ever need — even after you're gone"  
+**Track:** Consumer + Infrastructure
+**Tagline:** "The last wallet you'll ever need — even after you're gone"
 **Built by:** Rahul Patle × Claude
 
 ---
 
-*VAULTIS v1.0 — Devnet Only*
+*Bloom Wallet v1.0 — Devnet Only*

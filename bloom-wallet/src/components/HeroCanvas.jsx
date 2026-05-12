@@ -20,39 +20,50 @@ export default function HeroCanvas() {
       attribute vec2 aPos;
       void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
     `
-    // Premium Cream Light Mode Shader
+
     const frag = `
       precision highp float;
       uniform float uTime;
       uniform vec2 uRes;
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+      }
 
       void main() {
         vec2 uv = gl_FragCoord.xy / uRes;
         vec2 suv = uv * 2.0 - 1.0;
         suv.x *= uRes.x / uRes.y;
 
-        // Base cream color (Premium light mode)
-        vec3 baseColor = vec3(0.97, 0.96, 0.94); // #F7F5F0
+        // Warm cream base
+        vec3 baseColor = vec3(0.98, 0.968, 0.945);
 
-        // Soft animated orbs for light mode
-        vec2 o1 = vec2(sin(uTime * 0.3) * 0.8, cos(uTime * 0.2) * 0.6);
-        vec2 o2 = vec2(cos(uTime * 0.25) * 0.9, sin(uTime * 0.15) * 0.7);
-        vec2 o3 = vec2(sin(uTime * 0.4 + 1.0) * 0.5, cos(uTime * 0.35) * 0.5);
+        // Soft organic floating shapes (like petals/light)
+        vec2 p1 = vec2(sin(uTime * 0.2) * 0.7, cos(uTime * 0.15) * 0.5);
+        vec2 p2 = vec2(cos(uTime * 0.18 + 2.0) * 0.8, sin(uTime * 0.12 + 1.0) * 0.6);
+        vec2 p3 = vec2(sin(uTime * 0.25 + 4.0) * 0.5, cos(uTime * 0.22 + 3.0) * 0.45);
+        vec2 p4 = vec2(cos(uTime * 0.15 + 1.5) * 0.9, sin(uTime * 0.2 + 2.5) * 0.7);
 
-        float d1 = 1.0 - smoothstep(0.0, 1.2, length(suv - o1));
-        float d2 = 1.0 - smoothstep(0.0, 1.1, length(suv - o2));
-        float d3 = 1.0 - smoothstep(0.0, 1.0, length(suv - o3));
+        float d1 = 1.0 - smoothstep(0.0, 1.4, length(suv - p1));
+        float d2 = 1.0 - smoothstep(0.0, 1.2, length(suv - p2));
+        float d3 = 1.0 - smoothstep(0.0, 1.1, length(suv - p3));
+        float d4 = 1.0 - smoothstep(0.0, 0.9, length(suv - p4));
 
-        // Subtle tinting for the cream background
-        vec3 c1 = vec3(0.0, 0.8, 0.5) * d1 * 0.04;  // Very faint Solana Green
-        vec3 c2 = vec3(0.9, 0.8, 0.6) * d2 * 0.05;  // Warm gold/sand
-        vec3 c3 = vec3(0.8, 0.85, 0.9) * d3 * 0.06; // Soft ice blue
+        // Bloom peachy-coral tones
+        vec3 c1 = vec3(0.91, 0.66, 0.49) * d1 * 0.035;  // bloom coral
+        vec3 c2 = vec3(0.48, 0.62, 0.47) * d2 * 0.03;   // sage green
+        vec3 c3 = vec3(0.95, 0.77, 0.66) * d3 * 0.04;   // warm petal
+        vec3 c4 = vec3(0.71, 0.58, 0.79) * d4 * 0.025;  // soft lavender
 
-        vec3 col = baseColor - c1 - c2 - c3; // Subtract to create depth on light bg
+        vec3 col = baseColor + c1 + c2 + c3 + c4;
 
-        // Subtle noise for a matte paper texture
-        float noise = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
-        col -= noise * 0.015;
+        // Subtle linen texture noise
+        float noise = hash(uv * 500.0) * 0.008;
+        col -= noise;
+
+        // Soft vignette
+        float vignette = 1.0 - smoothstep(0.5, 1.5, length(suv * 0.8));
+        col = mix(col * vignette, col, 0.3);
 
         gl_FragColor = vec4(col, 1.0);
       }

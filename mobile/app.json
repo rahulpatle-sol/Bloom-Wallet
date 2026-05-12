@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Vaultis",
-    "slug": "vaultis",
+    "slug": "bloom-wallet",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -22,7 +22,12 @@
     ],
     "android": {
       "package": "com.vaultis.wallet",
-      "permissions": ["USE_BIOMETRIC", "USE_FINGERPRINT"]
+      "permissions": [
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
+      ]
     },
     "ios": {
       "supportsTablet": false,
@@ -33,6 +38,13 @@
     },
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "fb01f8be-a0a0-4e63-83d2-09b117497683"
+      }
+    },
+    "owner": "rahulpatle-sol"
   }
 }

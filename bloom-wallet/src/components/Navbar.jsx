@@ -14,7 +14,7 @@ export default function Navbar() {
   return (
     <nav className={`nav ${stuck ? 'stuck' : ''}`}>
       <Link to="/" className="nav-logo">
-        <span className="nav-logo-dot" />
+        <span className="nav-logo-icon">🌸</span>
         Bloom
       </Link>
       <ul className="nav-links">

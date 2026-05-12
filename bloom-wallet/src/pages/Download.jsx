@@ -7,7 +7,7 @@ const DOWNLOADS = [
   {
     icon: '📱',
     title: 'Android App',
-    desc: 'React Native Expo app. Biometric wallet + Digital Will on your phone.',
+    desc: 'React Native Expo app. Biometric wallet + Living Will on your phone.',
     badge: 'APK · Devnet',
     btnText: 'Download APK',
     btnIcon: 'ri-android-line',
@@ -53,30 +53,38 @@ export default function Download() {
       duration: 0.8, stagger: 0.15,
       ease: 'power3.out', delay: 0.3
     })
+    gsap.fromTo('.hero-chip', { opacity: 0, y: 20 }, {
+      opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.2
+    })
+    gsap.fromTo('.dl-h1', { opacity: 0, y: 60 }, {
+      opacity: 1, y: 0, duration: 1, ease: 'power4.out', delay: 0.3
+    })
+    gsap.fromTo('.dl-sub', { opacity: 0, y: 40 }, {
+      opacity: 1, y: 0, duration: 0.8, ease: 'power4.out', delay: 0.45
+    })
   }, [])
 
   return (
     <>
       <div className="dl-hero">
-        {/* Background orbs */}
         <div style={{position:'absolute',inset:0,overflow:'hidden',pointerEvents:'none'}}>
-          <div style={{position:'absolute',top:'-10%',left:'20%',width:600,height:600,background:'radial-gradient(circle,rgba(0,255,163,0.07),transparent 70%)',borderRadius:'50%'}} />
-          <div style={{position:'absolute',bottom:'0',right:'10%',width:500,height:500,background:'radial-gradient(circle,rgba(77,124,255,0.07),transparent 70%)',borderRadius:'50%'}} />
+          <div style={{position:'absolute',top:'-10%',left:'20%',width:600,height:600,background:'radial-gradient(circle,rgba(232,168,124,0.08),transparent 70%)',borderRadius:'50%'}} />
+          <div style={{position:'absolute',bottom:'0',right:'10%',width:500,height:500,background:'radial-gradient(circle,rgba(122,158,126,0.08),transparent 70%)',borderRadius:'50%'}} />
+        </div>
+
+        <div className="hero-chip" style={{ opacity: 0 }}>
+          <i className="ri-download-cloud-line" /> Downloads
         </div>
 
         <div style={{position:'relative',zIndex:2,textAlign:'center',marginBottom:80}}>
-          <div className="tag" style={{justifyContent:'center', marginBottom:24}}>
-            <i className="ri-download-cloud-line" /> Downloads
-          </div>
-          <h1 className="h2" style={{fontSize:'clamp(48px,7vw,96px)',letterSpacing:'-3px',marginBottom:20}}>
-            Get <em>Bloom</em>
+          <h1 className="dl-h1" style={{ fontFamily: "'Josefin Sans', sans-serif", fontSize:'clamp(48px,7vw,96px)', fontWeight: 300, letterSpacing:'-2px', marginBottom:20, color: '#3A3228', opacity: 0 }}>
+            Get <em style={{color:'#E8A87C', fontStyle:'italic'}}>Bloom</em>
           </h1>
-          <p className="sub" style={{margin:'0 auto',textAlign:'center'}}>
+          <p className="dl-sub" style={{ color: '#8C8278', fontSize: '18px', fontStyle: 'italic', maxWidth: '500px', margin: '0 auto', lineHeight: 1.75, opacity: 0 }}>
             Mobile app, Chrome extension, or both. Start protecting your wallet and legacy today.
           </p>
         </div>
 
-        {/* Download cards */}
         <div className="dl-cards" style={{position:'relative',zIndex:2}}>
           {DOWNLOADS.map((d, i) => (
             <div key={i} className="dl-card" style={{opacity:0}}>
@@ -86,7 +94,7 @@ export default function Download() {
               <p className="dl-card-desc">{d.desc}</p>
               <a
                 href={d.href}
-                className="btn-glow"
+                className="btn-bloom"
                 style={{
                   display:'inline-flex', gap:10, alignItems:'center',
                   width:'100%', justifyContent:'center',
@@ -102,7 +110,7 @@ export default function Download() {
         </div>
       </div>
 
-      {/* How to install extension */}
+      {/* Installation guide */}
       <section className="section">
         <div className="sr">
           <div className="tag">Installation Guide</div>
@@ -114,7 +122,7 @@ export default function Download() {
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginTop:64}}>
           {STEPS.map((s, i) => (
             <div key={i} className={`sec-card sr`} style={{transitionDelay:i*0.08+'s', alignItems:'flex-start'}}>
-              <div className="sec-ic" style={{fontFamily:'var(--font-h)',fontWeight:800,fontSize:13,color:'var(--bloom)'}}>
+              <div className="sec-ic" style={{fontFamily:"'Josefin Sans', sans-serif",fontWeight:700,fontSize:13,color:'#E8A87C'}}>
                 {s.n}
               </div>
               <div>
@@ -123,12 +131,11 @@ export default function Download() {
               </div>
             </div>
           ))}
-          {/* Big download btn in last slot */}
-          <div className="sec-card sr" style={{background:'rgba(0,255,163,0.04)',borderColor:'rgba(0,255,163,0.15)',flexDirection:'column',alignItems:'flex-start',gap:16}}>
-            <div style={{fontSize:32}}>🎉</div>
+          <div className="sec-card sr" style={{background:'rgba(232,168,124,0.05)',borderColor:'rgba(232,168,124,0.2)',flexDirection:'column',alignItems:'flex-start',gap:16}}>
+            <div style={{fontSize:32}}>🌸</div>
             <div className="sec-t">That's it!</div>
-            <div className="sec-d">Bloom Wallet is live in your Chrome. Set up biometric, get devnet SOL, and test your Digital Will.</div>
-            <a href="#" className="btn-glow" style={{textDecoration:'none', marginTop:8, width:'100%', justifyContent:'center'}}>
+            <div className="sec-d">Bloom Wallet is live in your Chrome. Set up biometric, get devnet SOL, and test your Living Will.</div>
+            <a href="#" className="btn-bloom" style={{textDecoration:'none', marginTop:8, width:'100%', justifyContent:'center'}}>
               <i className="ri-download-line" /> Download Extension ZIP
             </a>
           </div>
@@ -136,25 +143,26 @@ export default function Download() {
       </section>
 
       {/* Mobile coming soon */}
-      <div style={{textAlign:'center',padding:'80px 56px 140px'}}>
+      <div style={{textAlign:'center',padding:'80px 56px 140px', background: 'var(--white)'}}>
         <div className="sr">
-          <div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:32,padding:'64px',maxWidth:600,margin:'0 auto'}}>
+          <div style={{background:'var(--cream)',border:'1px solid var(--border)',borderRadius:32,padding:'64px',maxWidth:600,margin:'0 auto', boxShadow: '0 4px 20px var(--shadow)'}}>
             <div style={{fontSize:56,marginBottom:20}}>📱</div>
-            <h3 style={{fontFamily:'var(--font-h)',fontSize:28,fontWeight:800,marginBottom:12}}>Android App — Coming Soon</h3>
-            <p style={{color:'var(--muted)',lineHeight:1.7,marginBottom:32}}>
-              We're finalizing the React Native build with full biometric integration and Digital Will support. Leave your email to get notified first.
+            <h3 style={{fontFamily:"'Josefin Sans', sans-serif",fontSize:28,fontWeight:300,marginBottom:12, color: '#3A3228'}}>Android App — Coming Soon</h3>
+            <p style={{color:'#8C8278',lineHeight:1.7,marginBottom:32, fontStyle: 'italic'}}>
+              We're finalizing the React Native build with full biometric integration and Living Will support. Leave your email to get notified first.
             </p>
             <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
               <input
                 type="email"
                 placeholder="your@email.com"
                 style={{
-                  background:'rgba(255,255,255,0.04)',border:'1px solid var(--border)',
-                  borderRadius:100,padding:'14px 24px',color:'var(--text)',
-                  fontSize:14,outline:'none',minWidth:240,fontFamily:'var(--font-b)'
+                  background:'var(--white)',border:'1px solid var(--border)',
+                  borderRadius:100,padding:'14px 24px',color:'#3A3228',
+                  fontSize:14,outline:'none',minWidth:240,fontFamily:"'Nunito', sans-serif",
+                  boxShadow: '0 2px 8px var(--shadow)'
                 }}
               />
-              <button className="btn-glow">
+              <button className="btn-bloom">
                 <i className="ri-notification-line" /> Notify Me
               </button>
             </div>
@@ -165,8 +173,10 @@ export default function Download() {
       {/* Footer */}
       <footer>
         <div>
-          <div className="footer-logo">Bloom Wallet</div>
-          <div className="footer-badge"><i className="ri-checkbox-circle-fill" /> Built on Solana</div>
+          <div className="footer-logo">🌸 Bloom Wallet</div>
+          <div className="footer-badge" style={{ color: '#8B7355' }}>
+            <i className="ri-checkbox-circle-fill" /> Built on Solana
+          </div>
         </div>
         <div className="footer-links">
           <Link to="/" style={{color:'inherit',textDecoration:'none'}}>Home</Link>
