@@ -6,10 +6,57 @@ import * as SecureStore from 'expo-secure-store';
 import { Keypair } from '@solana/web3.js';
 import { split, combine } from './shamir';
 
-const SHARE_1_KEY = 'vaultis_share_1';
-const SHARE_2_KEY = 'vaultis_share_2_local';
-const PUBKEY_KEY  = 'vaultis_pubkey';
-const SETUP_DONE  = 'vaultis_setup_done';
+const SHARE_1_KEY   = 'bloom_share_1';
+const SHARE_2_KEY  = 'bloom_share_2_local';
+const PUBKEY_KEY   = 'bloom_pubkey';
+const SETUP_DONE   = 'bloom_setup_done';
+
+const OLD_SHARE_1_KEY  = 'vaultis_share_1';
+const OLD_SHARE_2_KEY = 'vaultis_share_2_local';
+const OLD_PUBKEY_KEY  = 'vaultis_pubkey';
+const OLD_SETUP_DONE  = 'vaultis_setup_done';
+
+async function getItem(key: string): Promise<string | null> {
+  try {
+    const val = await SecureStore.getItemAsync(key);
+    return val;
+  } catch { return null; }
+}
+
+async function setItem(key: string, value: string): Promise<void> {
+  try {
+    await SecureStore.setItemAsync(key, value);
+  } catch {}
+}
+
+async function deleteItem(key: string): Promise<void> {
+  try {
+    await SecureStore.deleteItemAsync(key);
+  } catch {}
+}
+
+async function migrateFromOld(): Promise<boolean> {
+  const oldSetup = await getItem(OLD_SETUP_DONE);
+  if (oldSetup !== '1') return false;
+
+  const oldPubkey  = await getItem(OLD_PUBKEY_KEY);
+  const oldShare1 = await getItem(OLD_SHARE_1_KEY);
+  const oldShare2 = await getItem(OLD_SHARE_2_KEY);
+
+  if (!oldPubkey || !oldShare1 || !oldShare2) return false;
+
+  await setItem(PUBKEY_KEY,   oldPubkey);
+  await setItem(SHARE_1_KEY, oldShare1);
+  await setItem(SHARE_2_KEY, oldShare2);
+  await setItem(SETUP_DONE, '1');
+
+  await deleteItem(OLD_PUBKEY_KEY);
+  await deleteItem(OLD_SHARE_1_KEY);
+  await deleteItem(OLD_SHARE_2_KEY);
+  await deleteItem(OLD_SETUP_DONE);
+
+  return true;
+}
 
 export function generateKeypair(): Keypair {
   return Keypair.generate();
@@ -29,7 +76,7 @@ export function reconstructPrivateKey(shareA: Buffer, shareB: Buffer): Uint8Arra
 export async function storeShare1(share: Buffer): Promise<void> {
   await SecureStore.setItemAsync(SHARE_1_KEY, share.toString('base64'), {
     requireAuthentication: true,
-    authenticationPrompt: 'Unlock your Vaultis wallet',
+    authenticationPrompt: 'Unlock your Bloom wallet',
   });
 }
 
@@ -37,7 +84,7 @@ export async function getShare1(): Promise<Buffer | null> {
   try {
     const val = await SecureStore.getItemAsync(SHARE_1_KEY, {
       requireAuthentication: true,
-      authenticationPrompt: 'Unlock your Vaultis wallet',
+      authenticationPrompt: 'Unlock your Bloom wallet',
     });
     return val ? Buffer.from(val, 'base64') : null;
   } catch { return null; }
@@ -59,16 +106,21 @@ export async function storePubkey(pubkey: string): Promise<void> {
 }
 
 export async function getPubkey(): Promise<string | null> {
-  return SecureStore.getItemAsync(PUBKEY_KEY);
+  return getItem(PUBKEY_KEY);
 }
 
 export async function markSetupDone(): Promise<void> {
-  await SecureStore.setItemAsync(SETUP_DONE, '1');
+  await setItem(SETUP_DONE, '1');
 }
 
 export async function isSetupDone(): Promise<boolean> {
-  const val = await SecureStore.getItemAsync(SETUP_DONE);
-  return val === '1';
+  return (await getItem(SETUP_DONE)) === '1';
+}
+
+export async function checkAndMigrate(): Promise<boolean> {
+  const bloomDone = await getItem(SETUP_DONE);
+  if (bloomDone === '1') return true;
+  return migrateFromOld();
 }
 
 export async function setupNewWallet(): Promise<{

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { COLORS } from '../constants/network';
 
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function WalletCard({ pubkey, balance, network, onRefresh }: Props) {
-  const shortAddr = pubkey ? `${pubkey.slice(0, 6)}...${pubkey.slice(-4)}` : '';
+  const shortAddr = pubkey ? `${pubkey.slice(0, 8)}...${pubkey.slice(-4)}` : '';
 
   const copyAddress = async () => {
     await Clipboard.setStringAsync(pubkey);
@@ -19,21 +20,25 @@ export function WalletCard({ pubkey, balance, network, onRefresh }: Props) {
 
   return (
     <View style={styles.card}>
-      <View style={styles.networkRow}>
-        <View style={[styles.dot, { backgroundColor: network === 'devnet' ? COLORS.warning : COLORS.accent }]} />
-        <Text style={styles.networkText}>{network.toUpperCase()}</Text>
+      <View style={styles.topRow}>
+        <View style={styles.solanaBadge}>
+          <View style={styles.solanaDot} />
+          <Text style={styles.solanaText}>SOLANA</Text>
+        </View>
+        <TouchableOpacity onPress={onRefresh} activeOpacity={0.7}>
+          <Ionicons name="refresh-outline" size={18} color={COLORS.textSecondary} />
+        </TouchableOpacity>
       </View>
 
-      <Text style={styles.balanceLabel}>Balance</Text>
-      <Text style={styles.balance}>{balance.toFixed(4)} SOL</Text>
+      <Text style={styles.balanceLabel}>Total Balance</Text>
+      <View style={styles.balanceRow}>
+        <Text style={styles.balance}>{balance.toFixed(4)}</Text>
+        <Text style={styles.currency}>SOL</Text>
+      </View>
 
       <TouchableOpacity style={styles.addressRow} onPress={copyAddress} activeOpacity={0.7}>
         <Text style={styles.address}>{shortAddr}</Text>
-        <Text style={styles.copy}>⎘ Copy</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh}>
-        <Text style={styles.refreshText}>↻ Refresh</Text>
+        <Ionicons name="copy-outline" size={14} color={COLORS.textSecondary} />
       </TouchableOpacity>
     </View>
   );
@@ -48,57 +53,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-  networkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 6,
-  },
-  networkText: {
-    color: COLORS.textMuted,
-    fontSize: 12,
-    letterSpacing: 1.5,
-    fontWeight: '600',
-  },
-  balanceLabel: {
-    color: COLORS.textMuted,
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  balance: {
-    color: COLORS.text,
-    fontSize: 38,
-    fontWeight: '700',
-    marginBottom: 16,
-  },
-  addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.bgCardAlt,
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 12,
-  },
-  address: {
-    color: COLORS.primaryLight,
-    fontSize: 14,
-    fontFamily: 'monospace',
-  },
-  copy: {
-    color: COLORS.textMuted,
-    fontSize: 12,
-  },
-  refreshBtn: {
-    alignItems: 'center',
-  },
-  refreshText: {
-    color: COLORS.textMuted,
-    fontSize: 13,
-  },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+  solanaBadge: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  solanaDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: COLORS.success },
+  solanaText: { fontSize: 11, fontWeight: '700', color: COLORS.textSecondary, letterSpacing: 1.5 },
+  balanceLabel: { color: COLORS.textSecondary, fontSize: 13, marginBottom: 6 },
+  balanceRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginBottom: 20 },
+  balance: { fontSize: 40, fontWeight: '800', color: COLORS.text },
+  currency: { fontSize: 18, color: COLORS.textSecondary, fontWeight: '600' },
+  addressRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: COLORS.bgElevated, borderRadius: 10, padding: 12, borderWidth: 1, borderColor: COLORS.border },
+  address: { color: COLORS.primary, fontSize: 13, fontFamily: 'monospace', flex: 1 },
 });

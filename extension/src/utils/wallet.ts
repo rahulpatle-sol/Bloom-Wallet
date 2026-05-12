@@ -3,11 +3,12 @@ import nacl from 'tweetnacl';
 import * as sss from 'shamirs-secret-sharing';
 import { Keypair } from '@solana/web3.js';
 
-const SHARE1_KEY = 'vaultis_share1';
-const PUBKEY_KEY = 'vaultis_pubkey';
-const SETUP_KEY  = 'vaultis_setup';
+const SHARE1_KEY = 'bloom_share1';
+const SHARE2_KEY = 'bloom_share2';
+const PUBKEY_KEY = 'bloom_pubkey';
+const SETUP_KEY = 'bloom_setup';
+const CRED_ID_KEY = 'bloom_cred_id';
 
-// Chrome storage helper
 function chromeGet(key: string): Promise<string | null> {
   return new Promise((resolve) => {
     chrome.storage.local.get(key, (result) => {
@@ -26,27 +27,26 @@ export function generateKeypair(): Keypair {
   return Keypair.generate();
 }
 
-export function splitKey(secretKey: Uint8Array) {
+export function splitKey(secretKey: Uint8Array): { share1: Buffer; share2: Buffer; share3: Buffer } {
   const secret = Buffer.from(secretKey);
-  const [s1, s2, s3] = sss.split(secret, { shares: 3, threshold: 2 });
-  return { share1: s1, share2: s2, share3: s3 };
+  const shares = sss.split(secret, { shares: 3, threshold: 2 });
+  return { share1: shares[0], share2: shares[1], share3: shares[2] };
 }
 
 export function reconstructKey(a: Buffer, b: Buffer): Uint8Array {
   return new Uint8Array(sss.combine([a, b]));
 }
 
-// WebAuthn helpers — biometric in browser
 export async function createCredential(): Promise<string> {
   const challenge = crypto.getRandomValues(new Uint8Array(32));
   const cred = await navigator.credentials.create({
     publicKey: {
       challenge,
-      rp: { name: 'Vaultis', id: location.hostname || 'vaultis' },
+      rp: { name: 'Bloom Wallet', id: location.hostname || 'bloom' },
       user: {
         id: crypto.getRandomValues(new Uint8Array(16)),
-        name: 'vaultis-user',
-        displayName: 'Vaultis User',
+        name: 'bloom-user',
+        displayName: 'Bloom User',
       },
       pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
       authenticatorSelection: {
@@ -56,7 +56,9 @@ export async function createCredential(): Promise<string> {
       timeout: 60000,
     },
   }) as PublicKeyCredential;
-  return btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+  const credId = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+  await chromeSet(CRED_ID_KEY, credId);
+  return credId;
 }
 
 export async function assertCredential(credentialId: string): Promise<boolean> {
@@ -78,10 +80,12 @@ export async function assertCredential(credentialId: string): Promise<boolean> {
 }
 
 export async function setupWallet() {
+  const credId = await createCredential();
   const keypair = generateKeypair();
   const { share1, share2, share3 } = splitKey(keypair.secretKey);
 
   await chromeSet(SHARE1_KEY, share1.toString('base64'));
+  await chromeSet(SHARE2_KEY, share2.toString('base64'));
   await chromeSet(PUBKEY_KEY, keypair.publicKey.toBase58());
   await chromeSet(SETUP_KEY, '1');
 
@@ -103,6 +107,11 @@ export async function getPubkey(): Promise<string | null> {
 
 export async function getSigningKeypair(share2Base64: string): Promise<Keypair | null> {
   try {
+    const credId = await chromeGet(CRED_ID_KEY);
+    if (!credId) return null;
+    const ok = await assertCredential(credId);
+    if (!ok) return null;
+
     const s1b64 = await chromeGet(SHARE1_KEY);
     if (!s1b64) return null;
     const share1 = Buffer.from(s1b64, 'base64');

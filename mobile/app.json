@@ -1,27 +1,24 @@
 {
   "expo": {
-    "name": "Vaultis",
+    "name": "Bloom",
     "slug": "bloom-wallet",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "scheme": "vaultis",
+    "scheme": "bloom",
     "splash": {
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0A0A1A"
+      "backgroundColor": "#010101"
     },
-    "plugins": [
-      "expo-router",
-      "expo-secure-store",
-      [
-        "expo-local-authentication",
-        {
-          "faceIDPermission": "Vaultis uses Face ID to protect your wallet"
-        }
-      ]
-    ],
+    "icon": "./assets/icon.png",
     "android": {
-      "package": "com.vaultis.wallet",
+      "package": "com.bloom.wallet",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundImage": "./assets/adaptive-icon-bg.png",
+        "backgroundColor": "#010101"
+      },
       "permissions": [
         "USE_BIOMETRIC",
         "USE_FINGERPRINT",
@@ -31,11 +28,23 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.vaultis.wallet"
+      "bundleIdentifier": "com.bloom.wallet",
+      "icon": "./assets/icon.png"
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Bloom uses Face ID to protect your wallet"
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },

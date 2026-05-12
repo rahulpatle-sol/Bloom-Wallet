@@ -61,9 +61,6 @@ export async function sendSOL(
   return sig;
 }
 
-// ============================================
-// WILL PROGRAM INSTRUCTIONS
-// ============================================
 export function getWillPDA(ownerPubkey: string, network = DEFAULT_NETWORK): PublicKey {
   const programId = new PublicKey(PROGRAM_ID[network] || PROGRAM_ID.devnet);
   const [pda] = PublicKey.findProgramAddressSync(
@@ -83,7 +80,7 @@ export async function buildInitializeWillIx(
   const willPDA = getWillPDA(ownerPubkey, network);
 
   const data = Buffer.alloc(3);
-  data[0] = 0; // InitializeWill discriminator
+  data[0] = 0;
   data.writeUInt16LE(inactivityDays, 1);
 
   return new TransactionInstruction({
@@ -106,7 +103,7 @@ export async function buildCheckInIx(
   const willPDA = getWillPDA(ownerPubkey, network);
 
   const data = Buffer.alloc(1);
-  data[0] = 1; // CheckIn discriminator
+  data[0] = 1;
 
   return new TransactionInstruction({
     programId,
@@ -130,12 +127,6 @@ export async function buildAddBeneficiaryIx(
   const beneficiary = new PublicKey(beneficiaryPubkey);
   const willPDA = getWillPDA(ownerPubkey, network);
 
-  const data = Buffer.alloc(34);
-  data[0] = 4; // AddBeneficiary discriminator
-  beneficiary.toBuffer().copy(data, 1);
-  data[33] = percentage;
-  // Note: slot in instruction data: we embed in the last byte differently
-  // Actual layout: [discriminator(1)] [beneficiary(32)] [percentage(1)] [slot(1)]
   const fullData = Buffer.alloc(35);
   fullData[0] = 4;
   beneficiary.toBuffer().copy(fullData, 1);
@@ -149,6 +140,51 @@ export async function buildAddBeneficiaryIx(
       { pubkey: willPDA, isSigner: false, isWritable: true },
     ],
     data: fullData,
+  });
+}
+
+export async function buildRevokeWillIx(
+  ownerPubkey: string,
+  network = DEFAULT_NETWORK
+): Promise<TransactionInstruction> {
+  const programId = new PublicKey(PROGRAM_ID[network] || PROGRAM_ID.devnet);
+  const owner = new PublicKey(ownerPubkey);
+  const willPDA = getWillPDA(ownerPubkey, network);
+
+  const data = Buffer.alloc(1);
+  data[0] = 3;
+
+  return new TransactionInstruction({
+    programId,
+    keys: [
+      { pubkey: owner, isSigner: true, isWritable: false },
+      { pubkey: willPDA, isSigner: false, isWritable: true },
+    ],
+    data,
+  });
+}
+
+export async function buildExecuteWillIx(
+  ownerPubkey: string,
+  beneficiaryPubkeys: string[],
+  network = DEFAULT_NETWORK
+): Promise<TransactionInstruction> {
+  const programId = new PublicKey(PROGRAM_ID[network] || PROGRAM_ID.devnet);
+  const willPDA = getWillPDA(ownerPubkey, network);
+
+  const data = Buffer.alloc(1);
+  data[0] = 2;
+
+  const beneficiaryKeys = beneficiaryPubkeys.map(b => ({ pubkey: new PublicKey(b), isSigner: false, isWritable: true }));
+
+  return new TransactionInstruction({
+    programId,
+    keys: [
+      { pubkey: new PublicKey(ownerPubkey), isSigner: false, isWritable: false },
+      { pubkey: willPDA, isSigner: false, isWritable: true },
+      ...beneficiaryKeys,
+    ],
+    data,
   });
 }
 
@@ -168,6 +204,40 @@ export async function sendTransaction(
   return sig;
 }
 
+export async function getRecentTransactions(pubkey: string, network = DEFAULT_NETWORK) {
+  const conn = getConnection(network);
+  const pk = new PublicKey(pubkey);
+  const sigs = await conn.getSignaturesForAddress(pk, { limit: 20 });
+  return sigs.map(s => ({
+    signature: s.signature,
+    slot: s.slot,
+    blockTime: s.blockTime ?? null,
+    fee: (s as any).fee ?? 0,
+    confirmed: s.confirmationStatus === 'confirmed',
+  }));
+}
+
+export async function getSPLTokenBalances(pubkey: string, network = DEFAULT_NETWORK) {
+  try {
+    const conn = getConnection(network);
+    const pk = new PublicKey(pubkey);
+    const tokens = await conn.getParsedTokenAccountsByOwner(pk, {
+      programId: new PublicKey('TokenkegQfeZyiNwAJpgNng80Q34XB3WkUHBqW7mGxqe1'),
+    });
+    return tokens.value.map(t => {
+      const amount = t.account.data.parsed.info.tokenAmount;
+      return {
+        mint: t.pubkey.toBase58(),
+        amount: amount.uiAmount,
+        symbol: t.account.data.parsed.info.symbol || 'unknown',
+        decimals: amount.decimals,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
 export async function getWillAccount(ownerPubkey: string, network = DEFAULT_NETWORK) {
   try {
     const conn = getConnection(network);
@@ -175,7 +245,6 @@ export async function getWillAccount(ownerPubkey: string, network = DEFAULT_NETW
     const info = await conn.getAccountInfo(willPDA);
     if (!info) return null;
 
-    // Parse WillAccount manually (matches Rust struct layout)
     const d = info.data;
     const view = new DataView(d.buffer, d.byteOffset);
 

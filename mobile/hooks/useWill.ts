@@ -4,6 +4,7 @@ import {
   buildInitializeWillIx,
   buildCheckInIx,
   buildAddBeneficiaryIx,
+  buildRevokeWillIx,
   sendTransaction,
   getWillPDA,
 } from '../utils/solana';
@@ -108,14 +109,34 @@ export function useWill(pubkey: string | null) {
     [pubkey, loadWill]
   );
 
+  const revokeWill = useCallback(
+    async (getKeypair: () => Promise<any>) => {
+      if (!pubkey) return null;
+      setLoading(true);
+      setError(null);
+      try {
+        const keypair = await getKeypair();
+        if (!keypair) throw new Error('Biometric authentication failed');
+        const ix = await buildRevokeWillIx(pubkey, DEFAULT_NETWORK);
+        const sig = await sendTransaction(ix, keypair, DEFAULT_NETWORK);
+        await loadWill();
+        return sig;
+      } catch (e: any) {
+        setError(e.message);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pubkey, loadWill]
+  );
+
   const willPDA = pubkey ? getWillPDA(pubkey, DEFAULT_NETWORK).toBase58() : null;
 
-  // Days since last check-in
   const daysSinceCheckin = will
     ? Math.floor((Date.now() / 1000 - will.lastCheckin) / 86400)
     : 0;
 
-  // Days remaining before will executes
   const daysUntilExecution = will
     ? Math.max(0, will.inactivityDays - daysSinceCheckin)
     : 0;
@@ -131,5 +152,6 @@ export function useWill(pubkey: string | null) {
     initializeWill,
     checkIn,
     addBeneficiary,
+    revokeWill,
   };
 }

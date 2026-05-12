@@ -20,7 +20,7 @@ export function useBiometric() {
     })();
   }, []);
 
-  const authenticate = async (prompt = 'Unlock Vaultis'): Promise<boolean> => {
+  const authenticate = async (prompt = 'Unlock Bloom'): Promise<boolean> => {
     try {
       const result = await LocalAuthentication.authenticateAsync({
         promptMessage: prompt,

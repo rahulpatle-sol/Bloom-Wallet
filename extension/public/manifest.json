@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Vaultis Wallet",
+  "name": "Bloom Wallet",
   "version": "1.0.0",
   "description": "Biometric Solana wallet with Digital Will — no seed phrase",
   "permissions": ["storage", "activeTab"],
   "action": {
     "default_popup": "popup/index.html",
     "default_icon": {
-      "16": "icon.png",
-      "48": "icon.png",
+      "16": "icon-16.png",
+      "48": "icon-48.png",
       "128": "icon.png"
     }
   },
@@ -17,8 +17,8 @@
     "type": "module"
   },
   "icons": {
-    "16": "icon.png",
-    "48": "icon.png",
+    "16": "icon-16.png",
+    "48": "icon-48.png",
     "128": "icon.png"
   },
   "content_security_policy": {

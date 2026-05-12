@@ -6,7 +6,7 @@ import { COLORS } from '../constants/network';
 export default function RootLayout() {
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <Stack
         screenOptions={{
           headerStyle: { backgroundColor: COLORS.bg },

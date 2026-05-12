@@ -4,8 +4,18 @@ import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import Send from './pages/Send';
 import Will from './pages/Will';
+import Settings from './pages/Settings';
 
 export type Page = 'home' | 'send' | 'will' | 'settings';
+
+const C = {
+  bg: '#010101', card: '#12121C', cardAlt: '#1A1A2E',
+  border: '#2A2A40', primary: '#AB9FF2', primaryDark: '#5548D0',
+  text: '#E8E8F0', muted: '#8888A8', accent: '#4ADE80',
+  danger: '#F87171', warning: '#FBBF24', bloom: '#E8A87C',
+};
+
+export { C };
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -19,7 +29,13 @@ export default function App() {
     });
   }, []);
 
-  if (!ready) return <div style={styles.center}><div style={styles.spinner} /></div>;
+  if (!ready) {
+    return (
+      <div style={{ ...styles.center, backgroundColor: C.bg }}>
+        <div style={{ ...styles.spinner, borderTopColor: C.primary }} />
+      </div>
+    );
+  }
 
   if (!hasWallet) {
     return <Onboarding onComplete={() => setHasWallet(true)} />;
@@ -28,40 +44,48 @@ export default function App() {
   const nav = (p: Page) => setPage(p);
 
   return (
-    <div style={styles.app}>
+    <div style={{ ...styles.app, backgroundColor: C.bg }}>
       {page === 'home' && <Home nav={nav} />}
       {page === 'send' && <Send nav={nav} />}
       {page === 'will' && <Will nav={nav} />}
+      {page === 'settings' && <Settings nav={nav} />}
 
-      {/* Bottom nav */}
-      <div style={styles.bottomNav}>
-        {(['home', 'send', 'will'] as Page[]).map((p) => (
-          <button
-            key={p}
-            onClick={() => nav(p)}
-            style={{
-              ...styles.navBtn,
-              color: page === p ? '#A78BFA' : '#64748B',
-              borderTop: page === p ? '2px solid #7C3AED' : '2px solid transparent',
-            }}
-          >
-            {p === 'home' ? '💰' : p === 'send' ? '↗' : '💀'}
-            <span style={{ fontSize: 10, marginTop: 2 }}>{p.charAt(0).toUpperCase() + p.slice(1)}</span>
-          </button>
-        ))}
+      <div style={{ ...styles.bottomNav, borderTop: `1px solid ${C.border}` }}>
+        {(['home', 'send', 'will', 'settings'] as Page[]).map((p) => {
+          const icons: Record<string, string> = {
+            home: '💰', send: '↗', will: '💀', settings: '⚙️',
+          };
+          const labels: Record<string, string> = {
+            home: 'Wallet', send: 'Send', will: 'Will', settings: 'Settings',
+          };
+          return (
+            <button
+              key={p}
+              onClick={() => nav(p)}
+              style={{
+                ...styles.navBtn,
+                color: page === p ? C.primary : C.muted,
+                borderTop: page === p ? `2px solid ${C.primaryDark}` : '2px solid transparent',
+              }}
+            >
+              <span style={{ fontSize: 18 }}>{icons[p]}</span>
+              <span style={{ fontSize: 9, marginTop: 2, fontWeight: 600 }}>{labels[p]}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  app: { display: 'flex', flexDirection: 'column', minHeight: '100vh' },
+  app: { display: 'flex', flexDirection: 'column', minHeight: '100vh', maxWidth: 400 },
   center: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' },
-  spinner: { width: 32, height: 32, border: '3px solid #2D2D5E', borderTop: '3px solid #7C3AED', borderRadius: '50%', animation: 'spin 1s linear infinite' },
-  bottomNav: { display: 'flex', borderTop: '1px solid #2D2D5E', backgroundColor: '#12122A', marginTop: 'auto' },
+  spinner: { width: 32, height: 32, border: '3px solid #2A2A40', borderTopColor: '#AB9FF2', borderRadius: '50%', animation: 'spin 1s linear infinite' },
+  bottomNav: { display: 'flex', backgroundColor: '#0D0D14', paddingBottom: 4, marginTop: 'auto' },
   navBtn: {
     flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-    padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer',
-    fontSize: 20, fontFamily: 'inherit',
+    padding: '8px 0', background: 'none', border: 'none', cursor: 'pointer',
+    fontFamily: 'inherit',
   },
 };
